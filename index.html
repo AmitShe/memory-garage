@@ -10,8 +10,8 @@
   <link rel="icon" href="assets/icon-192.png" type="image/png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" sizes="180x180">
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="style.css">
-  <script type="module" src="game.js"></script>
+  <link rel="stylesheet" href="style.css?v=2">
+  <script type="module" src="game.js?v=2"></script>
 </head>
 <body>
   <main class="app">
@@ -19,7 +19,7 @@
       <a class="utility" href="https://amitshe.github.io/" aria-label="חזרה למגרש המשחקים">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7M6 10v9h12v-9M10 19v-5h4v5"/></svg>
       </a>
-      <div class="brand"><span aria-hidden="true">◆</span> מוסך הזיכרון</div>
+      <button class="restart" id="restart" type="button"><span aria-hidden="true">↻</span> מההתחלה</button>
       <button class="utility sound" type="button" id="sound" aria-label="צלילים" aria-pressed="true">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l4-4v14l-4-4H4z"/><path class="waves" d="M16 9c2 2 2 4 0 6m2-8c3 3 3 7 0 10"/><path class="muted" d="m16 10 4 4m0-4-4 4"/></svg>
       </button>
@@ -43,13 +43,31 @@
         <span id="page-label"></span>
         <button id="following" type="button" aria-label="עמוד הבא">←</button>
       </nav>
-      <div class="ready" id="ready" hidden>
-        <div class="seal" aria-hidden="true">✓</div>
-        <h3>כל הזוגות במוסך!</h3>
-        <p id="ready-text"></p>
-        <button id="next" type="button">לשלב הבא <span aria-hidden="true">←</span></button>
-      </div>
     </section>
   </main>
+  <dialog class="ready" id="ready" aria-labelledby="ready-title">
+    <div class="ready-heading">
+      <div class="seal" aria-hidden="true">✓</div>
+      <div>
+        <h2 id="ready-title">כל הזוגות במוסך!</h2>
+        <p id="ready-text"></p>
+      </div>
+    </div>
+    <div class="parade" id="parade" aria-hidden="true"></div>
+    <div class="ready-actions">
+      <button class="restart" id="restart-ready" type="button">מההתחלה</button>
+      <button id="next" type="button" autofocus>לשלב הבא <span aria-hidden="true">←</span></button>
+    </div>
+  </dialog>
+  <dialog class="reset-dialog" id="reset-dialog" aria-labelledby="reset-title">
+    <form method="dialog">
+      <h2 id="reset-title">לחזור לשלב הראשון?</h2>
+      <p>ההתקדמות במוסך תתאפס.</p>
+      <div class="reset-actions">
+        <button value="cancel" autofocus>להמשיך לשחק</button>
+        <button value="restart">להתחיל מחדש</button>
+      </div>
+    </form>
+  </dialog>
 </body>
 </html>

@@ -1,5 +1,5 @@
 import { makeDeck, pageSize } from "./cards.js";
-import { makeSound } from "./sound.js";
+import { makeSound } from "./sound.js?v=2";
 
 const $ = id => document.getElementById(id);
 const play = makeSound($("sound"), "memory-garage:muted");
@@ -8,6 +8,9 @@ const status = $("status");
 const next = $("next");
 const previous = $("previous");
 const following = $("following");
+const ready = $("ready");
+const reset = $("reset-dialog");
+const parade = $("parade");
 const key = "memory-garage:level";
 const badges = ["#ffda76", "#a9e7d6", "#e3c8fa", "#ffd0b1", "#bce5fb"];
 
@@ -23,6 +26,8 @@ let second;
 let matched;
 let locked;
 let done;
+let hideTimer;
+let celebrationTimer;
 
 function pages() { return Math.ceil(deck.length / pageSize); }
 
@@ -31,6 +36,24 @@ function updateProgress() {
   $("tally").textContent = matched.size + " מתוך " + deck.length / 2 + " זוגות";
   $("progress").max = deck.length / 2;
   $("progress").value = matched.size;
+}
+
+function vehicleArt(kind) {
+  const art = document.createElement("span");
+  art.className = "vehicle-art";
+  art.dataset.vehicle = kind;
+  const image = new Image();
+  image.src = "assets/" + kind + ".webp";
+  image.alt = "";
+  image.draggable = false;
+  art.append(image);
+  if (kind === "crane") {
+    const hook = document.createElement("span");
+    hook.className = "crane-hook";
+    hook.append(image.cloneNode());
+    art.append(hook);
+  }
+  return art;
 }
 
 function showPage() {
@@ -42,10 +65,6 @@ function showPage() {
     button.type = "button";
     button.className = "card";
     button.dataset.index = index;
-    const image = new Image();
-    image.src = "assets/" + card.image + ".webp";
-    image.alt = "";
-    image.draggable = false;
     const badge = document.createElement("span");
     badge.className = "badge";
     badge.textContent = card.badge || "";
@@ -54,7 +73,7 @@ function showPage() {
     tick.className = "tick";
     tick.textContent = "✓";
     tick.setAttribute("aria-hidden", "true");
-    button.append(image, badge, tick);
+    button.append(vehicleArt(card.image), badge, tick);
     button.addEventListener("click", () => flip(index));
     board.append(button);
   });
@@ -80,6 +99,10 @@ function paint() {
 }
 
 function start() {
+  clearTimeout(hideTimer);
+  clearTimeout(celebrationTimer);
+  if (ready.open) ready.close();
+  parade.replaceChildren();
   deck = makeDeck(level);
   page = 0;
   first = second = null;
@@ -88,10 +111,26 @@ function start() {
   const columns = deck.length === 4 ? 2 : deck.length <= 8 ? 3 : 4;
   board.dataset.columns = columns;
   board.style.setProperty("--columns", columns);
-  $("ready").hidden = true;
   status.textContent = deck.length > pageSize ? "חפשו זוגות גם בין העמודים" : "הפכו שני קלפים ומצאו זוג";
   updateProgress();
   showPage();
+}
+
+function celebrate() {
+  if (ready.open || reset.open) return;
+  const kinds = [...new Set(deck.map(card => card.image))];
+  parade.dataset.count = kinds.length;
+  parade.replaceChildren(...kinds.map((kind, index) => {
+    const bay = document.createElement("div");
+    bay.className = "parade-bay";
+    const art = vehicleArt(kind);
+    art.classList.add("moving");
+    art.style.setProperty("--delay", (index % 3) * 75 + "ms");
+    bay.append(art);
+    return bay;
+  }));
+  $("ready-text").textContent = "בשלב הבא מחכים " + (deck.length + 2) + " קלפים.";
+  ready.showModal();
 }
 
 function flip(index) {
@@ -99,32 +138,37 @@ function flip(index) {
   if (first === null) {
     first = index;
     status.textContent = "איפה הקלף התאום?";
-    play([440], .06);
+    play("flip");
     paint();
     return;
   }
 
   second = index;
   if (deck[first].pair === deck[second].pair) {
-    matched.add(deck[first].pair);
+    const found = deck[first];
+    matched.add(found.pair);
     first = second = null;
-    play([523, 659, 784], .062);
+    play(found.image);
     updateProgress();
     status.textContent = "מצאתם זוג!";
+    paint();
+    for (const button of board.children) {
+      if (deck[Number(button.dataset.index)].pair === found.pair) {
+        button.querySelector(".vehicle-art").classList.add("moving");
+      }
+    }
     if (matched.size === deck.length / 2) {
       done = true;
       try { localStorage.setItem(key, String(level + 1)); } catch {}
-      $("ready").hidden = false;
-      $("ready-text").textContent = "בשלב הבא מחכים " + (deck.length + 2) + " קלפים.";
-      next.focus();
+      paint();
+      celebrationTimer = setTimeout(celebrate, 650);
     }
-    paint();
   } else {
     locked = true;
     status.textContent = "זכרו איפה הם. נסו שוב!";
-    play([369, 311], .075);
+    play("miss");
     paint();
-    setTimeout(() => {
+    hideTimer = setTimeout(() => {
       first = second = null;
       locked = false;
       paint();
@@ -144,5 +188,22 @@ next.addEventListener("click", () => {
   level++;
   start();
   board.firstElementChild.focus();
+});
+ready.addEventListener("cancel", event => event.preventDefault());
+for (const button of [$("restart"), $("restart-ready")]) {
+  button.addEventListener("click", () => {
+    reset.returnValue = "";
+    reset.showModal();
+  });
+}
+reset.addEventListener("close", () => {
+  if (reset.returnValue !== "restart") {
+    if (done) celebrate();
+    return;
+  }
+  level = 1;
+  try { localStorage.setItem(key, "1"); } catch {}
+  start();
+  board.firstElementChild.focus({ preventScroll: true });
 });
 start();
