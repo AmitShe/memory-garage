@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#112a4d">
+  <meta name="apple-mobile-web-app-title" content="מוסך הזיכרון">
+  <meta name="description" content="משחק זיכרון לקטנים עם כלי רכב, זוגות הולכים וגדלים ושלבים בלי סוף.">
+  <title>מוסך הזיכרון</title>
+  <link rel="icon" href="assets/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" sizes="180x180">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="game.js"></script>
+</head>
+<body>
+  <main class="app">
+    <header class="top">
+      <a class="utility" href="https://amitshe.github.io/" aria-label="חזרה למגרש המשחקים">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7M6 10v9h12v-9M10 19v-5h4v5"/></svg>
+      </a>
+      <div class="brand"><span aria-hidden="true">◆</span> מוסך הזיכרון</div>
+      <button class="utility sound" type="button" id="sound" aria-label="צלילים" aria-pressed="true">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l4-4v14l-4-4H4z"/><path class="waves" d="M16 9c2 2 2 4 0 6m2-8c3 3 3 7 0 10"/><path class="muted" d="m16 10 4 4m0-4-4 4"/></svg>
+      </button>
+    </header>
+
+    <header class="banner">
+      <h1>מוסך הזיכרון</h1>
+      <img src="assets/garage.webp" alt="" fetchpriority="high" draggable="false">
+    </header>
+
+    <section class="workbench" aria-labelledby="level">
+      <div class="level-row">
+        <h2 id="level">שלב 1</h2>
+        <span class="tally" id="tally"></span>
+      </div>
+      <progress id="progress" value="0" max="2" aria-label="זוגות שנמצאו"></progress>
+      <p id="status" class="status" role="status"></p>
+      <div id="board" class="board" aria-label="לוח הקלפים"></div>
+      <nav id="paging" class="paging" aria-label="עמודי קלפים" hidden>
+        <button id="previous" type="button" aria-label="עמוד קודם">→</button>
+        <span id="page-label"></span>
+        <button id="following" type="button" aria-label="עמוד הבא">←</button>
+      </nav>
+      <div class="ready" id="ready" hidden>
+        <div class="seal" aria-hidden="true">✓</div>
+        <h3>כל הזוגות במוסך!</h3>
+        <p id="ready-text"></p>
+        <button id="next" type="button">לשלב הבא <span aria-hidden="true">←</span></button>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
