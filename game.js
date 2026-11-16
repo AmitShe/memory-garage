@@ -1,8 +1,8 @@
 import { makeDeck, pageSize } from "./cards.js";
-import { makeSound } from "./sound.js?v=2";
+import { makeSound } from "./sound.js?v=3";
 
 const $ = id => document.getElementById(id);
-const play = makeSound($("sound"), "memory-garage:muted");
+const { play, stop } = makeSound($("sound"), "memory-garage:muted");
 const board = $("board");
 const status = $("status");
 const next = $("next");
@@ -99,6 +99,7 @@ function paint() {
 }
 
 function start() {
+  stop();
   clearTimeout(hideTimer);
   clearTimeout(celebrationTimer);
   if (ready.open) ready.close();
@@ -131,6 +132,7 @@ function celebrate() {
   }));
   $("ready-text").textContent = "בשלב הבא מחכים " + (deck.length + 2) + " קלפים.";
   ready.showModal();
+  play("finish");
 }
 
 function flip(index) {
@@ -161,7 +163,7 @@ function flip(index) {
       done = true;
       try { localStorage.setItem(key, String(level + 1)); } catch {}
       paint();
-      celebrationTimer = setTimeout(celebrate, 650);
+      celebrationTimer = setTimeout(celebrate, 750);
     }
   } else {
     locked = true;
